@@ -1,0 +1,8 @@
+.env
+__pycache__
+.idea
+venv
+*.iml
+*.pickle
+*.svg
+*.png
