@@ -13,22 +13,23 @@ reddit = praw.Reddit(client_id=os.environ.get("client_id"),
                      username=os.environ.get('username'),
                      password=os.environ.get('password'),
                      user_agent='my user agent')
+
 subreddit_moderators = {}
 user_moderated_subreddits = {}
+subreddit_size = {}
 
 with open('popular-subreddits.txt') as f:
     popular_subreddits = f.readlines()
 popular_subreddits = set([x.strip() for x in popular_subreddits])
 
+largest_subreddit_size = reddit.get('/r/announcements/about.json').subscribers
+
 
 def get_subreddit_moderators(subreddit):
     if subreddit not in subreddit_moderators:
-        moderators = list(map(lambda mod: mod.name, reddit.subreddit(subreddit).moderator()))
-        # Edge case
-        try:
-            moderators.remove('AutoModerator')
-        except:
-            pass
+        moderators = list(map(lambda mod: (mod.name, get_edge_weight(subreddit, mod.mod_permissions)), reddit.subreddit(subreddit).moderator()))
+        # Remove AutoModerator edge case
+        moderators = filter(lambda mod: mod[0] != 'AutoModerator', moderators)
         subreddit_moderators[subreddit] = moderators
         return moderators
     return subreddit_moderators[subreddit]
@@ -45,3 +46,38 @@ def get_user_moderated_subreddits(username):
         user_moderated_subreddits[username] = subreddits
         return subreddits
     return user_moderated_subreddits[username]
+
+
+def get_subreddit_size(subreddit):
+    if subreddit not in subreddit_size:
+        size = reddit.get(f'/r/{subreddit}/about.json').subscribers
+        subreddit_size[subreddit] = size
+        return size
+    else:
+        return subreddit_size[subreddit]
+
+
+def get_edge_weight(subreddit, mod_permissions, scalar=100):
+    if len(mod_permissions) == 0:
+        return 0
+    size = get_subreddit_size(subreddit)
+
+    total_possible_points = scalar * size / largest_subreddit_size
+    percentage_points = 0
+    if 'all' in mod_permissions:
+        return total_possible_points
+    if 'access' in mod_permissions:
+        percentage_points += 20
+    if 'config' in mod_permissions:
+        percentage_points += 10
+    if 'flair' in mod_permissions:
+        percentage_points += 5
+    if 'mail' in mod_permissions:
+        percentage_points += 10
+    if 'posts' in mod_permissions:
+        percentage_points += 20
+    if 'wiki' in mod_permissions:
+        percentage_points += 10
+    if percentage_points == 0:
+        raise Exception(f'Error calculating mod permissions: {mod_permissions}, {subreddit}')
+    return percentage_points * total_possible_points / 100

@@ -16,14 +16,13 @@ def breath_first_search(start):
             user_moderated_subreddits = get_user_moderated_subreddits(u)
             for subreddit in user_moderated_subreddits:
                 for user in get_subreddit_moderators(subreddit):
-                    if u != user:
-                        graph.add_edge(u, user, subreddit=subreddit)
-                        q.put(user)
+                    if u != user[0]:
+                        graph.add_edge(u, user[0], subreddit=subreddit, weight=user[1])
+                        q.put(user[0])
         visited.add(u)
         print("Queue size after loop: {}".format(q.qsize()))
-        if q.qsize() > 100000:
-            break
     return graph
+
 
 graph_popular_subreddits = breath_first_search('BWPhoenix')
 with open('out/popular-subreddits.pickle', 'wb') as pickle_file:

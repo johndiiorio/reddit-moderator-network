@@ -4,9 +4,6 @@ import graphviz
 with open('out/popular-subreddits.pickle', 'rb') as pickle_file:
     graph_popular_subreddits = pickle.load(pickle_file)
 
-with open('out/popular-subreddits5000.pickle', 'rb') as pickle_file:
-    graph_popular_subreddits5000 = pickle.load(pickle_file)
-
 
 def render(graph, name, output_format):
     node_attr = {'color': 'red', 'shape': 'circle'}
@@ -20,4 +17,5 @@ def render(graph, name, output_format):
     with open(f'out/{name}.{output_format}', 'wb') as graph_file:
         graph_file.write(gv_graph.pipe(output_format))
 
-render(graph_popular_subreddits5000, 'graph', 'png')
+
+render(graph_popular_subreddits, 'graph', 'png')
