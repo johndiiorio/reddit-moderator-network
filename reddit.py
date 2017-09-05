@@ -29,7 +29,7 @@ def get_subreddit_moderators(subreddit):
     if subreddit not in subreddit_moderators:
         moderators = list(map(lambda mod: (mod.name, get_edge_weight(subreddit, mod.mod_permissions)), reddit.subreddit(subreddit).moderator()))
         # Remove AutoModerator edge case
-        moderators = filter(lambda mod: mod[0] != 'AutoModerator', moderators)
+        moderators = list(filter(lambda mod: mod[0] != 'AutoModerator', moderators))
         subreddit_moderators[subreddit] = moderators
         return moderators
     return subreddit_moderators[subreddit]
