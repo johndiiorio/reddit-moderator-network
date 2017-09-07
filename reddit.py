@@ -2,6 +2,7 @@ import praw
 import requests
 import json
 import os
+import math
 from os.path import join, dirname
 from dotenv import load_dotenv
 
@@ -61,8 +62,8 @@ def get_edge_weight(subreddit, mod_permissions, scalar=100):
     if len(mod_permissions) == 0:
         return 0
     size = get_subreddit_size(subreddit)
+    total_possible_points = (scalar * math.sqrt(size)) / math.sqrt(largest_subreddit_size)
 
-    total_possible_points = scalar * size / largest_subreddit_size
     percentage_points = 0
     if 'all' in mod_permissions:
         return total_possible_points

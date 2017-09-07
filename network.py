@@ -17,7 +17,7 @@ def breath_first_search(start):
             for subreddit in user_moderated_subreddits:
                 moderators = get_subreddit_moderators(subreddit)
                 for user in moderators:
-                    if u != user[0]:
+                    if u != user[0] and not (u in graph and user[0] in graph[u] and graph[u][user[0]]['weight'] > user[1]):
                         graph.add_edge(u, user[0], attr_dict={"subreddit": subreddit, "weight": user[1]})
                         q.put(user[0])
         visited.add(u)
