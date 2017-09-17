@@ -22,29 +22,24 @@ def get_node_score(degree, betweenness, closeness, eigenvector):
     return math.sqrt((1 - degree)**2 + (1 - betweenness)**2 + (1 - closeness)**2 + (1 - eigenvector)**2)
 
 
-print(f'Number of nodes: {nx.number_of_nodes(graph)}\n')
-print(f'Number of edges: {nx.number_of_edges(graph)}\n')
-
 degree_centrality = sort_dict_by_key(nx.degree_centrality(graph))
 betweeness_centrality = sort_dict_by_key(nx.betweenness_centrality(graph))
 closeness_centrality = sort_dict_by_key(nx.closeness_centrality(graph))
 eigenvector_centrality = sort_dict_by_key(nx.eigenvector_centrality_numpy(graph))
 
+d_c_dict = dict(degree_centrality)
+b_c_dict = dict(betweeness_centrality)
+c_c_dict = dict(closeness_centrality)
+e_c_dict = dict(eigenvector_centrality)
+
 scores = []
-for d, b, c, e in zip(degree_centrality, betweeness_centrality, closeness_centrality, eigenvector_centrality):
-    scores.append((d[0], get_node_score(d[1], b[1], c[1], d[1])))
+for el in zip(d_c_dict, b_c_dict, c_c_dict, e_c_dict):
+    username = el[0]
+    scores.append((username, get_node_score(d_c_dict[username], b_c_dict[username], c_c_dict[username], e_c_dict[username])))
 
-for i, j in sorted(scores, key=lambda x: x[1]):
-    print(i, j)
 
-print('Top 10 nodes with highest degree centrality:')
-print(top_from_dict(degree_centrality))
-
-print('Top 10 nodes with highest betweenness centrality')
-print(top_from_dict(betweeness_centrality))
-
-print('Top 10 nodes with highest closeness centrality:')
-print(top_from_dict(closeness_centrality))
-
-print('Top 10 nodes with highest eigenvector centrality')
-print(top_from_dict(eigenvector_centrality))
+with open('out/analysis.csv', 'w') as output_file:
+    header = 'username, score, degree centrality, betweeness centrality, closeness centrality, eigenvector centrality\n'
+    output_file.write(header)
+    for i, j in sorted(scores, key=lambda x: x[1]):
+        output_file.write(f'{i},{j},{d_c_dict[i]},{b_c_dict[i]},{c_c_dict[i]},{e_c_dict[i]}\n')

@@ -66,7 +66,7 @@ def get_edge_weight(subreddit, mod_permissions, scalar=100):
 
     percentage_points = 0
     if 'all' in mod_permissions:
-        return total_possible_points
+        return scalar - total_possible_points
     if 'access' in mod_permissions:
         percentage_points += 20
     if 'config' in mod_permissions:
@@ -81,4 +81,4 @@ def get_edge_weight(subreddit, mod_permissions, scalar=100):
         percentage_points += 10
     if percentage_points == 0:
         raise Exception(f'Error calculating mod permissions: {mod_permissions}, {subreddit}')
-    return percentage_points * total_possible_points / 100
+    return scalar - (percentage_points * total_possible_points / scalar)
